@@ -1,12 +1,11 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.InvalidElementStateException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
+
+import static utils.ConfigReader.properties;
 
 public class BasePage {
 
@@ -24,22 +23,34 @@ public class BasePage {
 
     public void type(By locator, String text) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
 
-        // Verificamos que esté habilitado antes de limpiar/escribir
-        if (element.isEnabled() && element.isDisplayed()) {
-            try {
-                element.clear();  // Aquí fallaba
-            } catch (InvalidElementStateException e) {
-                System.out.println("⚠️ Warning: Campo no se puede limpiar, se omite clear().");
-            }
-            element.sendKeys(text);
-        } else {
-            throw new IllegalStateException("El campo no está habilitado para escribir.");
+        try {
+            element.clear();
+        } catch (Exception ignored) {
+        }
+        element.sendKeys(text);
+    }
+    public void waitSeconds(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
+    public void waitUntilVisible(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+    public void waitUntilClickable(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
 
+    public void waitUntilInvisible(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
 
     protected void click(By locator) {
         waitForVisibility(locator).click();
@@ -56,6 +67,11 @@ public class BasePage {
             return false;
         }
     }
+    public void clickWithJS(By locator) {
+        WebElement element = driver.findElement(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+    }
+
     public void selectFromAutocomplete(By inputLocator, String valueToType, By optionLocator) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement input = wait.until(ExpectedConditions.elementToBeClickable(inputLocator));
@@ -63,7 +79,15 @@ public class BasePage {
         input.sendKeys(valueToType);
         wait.until(ExpectedConditions.visibilityOfElementLocated(optionLocator)).click();
     }
+    public void waitUntilLoaderDisappears(By loader) {
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.invisibilityOfElementLocated(loader));
+    }
 
+
+    public static String get(String key) {
+        return properties.getProperty(key);
+    }
 
     protected void selectByVisibleText(By locator, String visibleText) {
         Select dropdown = new Select(waitForVisibility(locator));

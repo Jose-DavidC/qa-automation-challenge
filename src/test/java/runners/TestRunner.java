@@ -8,6 +8,7 @@ import io.cucumber.junit.CucumberOptions;
 @CucumberOptions(
         features = "src/test/resources/features",
         glue = {"stepdefinitions", "utils"},
+        tags = "@CreacionItems",
 
 plugin = {"pretty", "html:target/cucumber-report.html"},
         monochrome = true

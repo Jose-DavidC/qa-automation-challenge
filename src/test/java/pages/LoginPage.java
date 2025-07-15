@@ -10,7 +10,7 @@ public class LoginPage extends BasePage {
     private By loginButton = By.id("BtnIngresar");
     private By registerLink = By.linkText("Registrate aquí");
     private By errorMessage = By.id("lblRes");
-
+    private By confrimRegister = By.id("BtnRegistrar");
     public LoginPage(WebDriver driver) {
         super(driver);
     }
@@ -27,7 +27,9 @@ public class LoginPage extends BasePage {
     public void clickRegister() {
         click(registerLink);
     }
-
+     public void clickConfirm(){
+        click(confrimRegister);
+     }
     public String getErrorMessage() {
         return getText(errorMessage);
     }
